@@ -36,7 +36,7 @@ def testscan(height=1.0, m=1.0, N=500, r=0.3, h=0.7, d=0.9, disp=0):
     out = np.zeros((N,N))
     angles = np.mgrid[-m:m:N*1j, -m:m:N*1j].T
 
-    with open("cupgamefinal.c") as f:
+    with open("cupgame.c") as f:
         import hashlib
         clib = "\n".join(f.readlines())
         sha1 = hashlib.sha1(clib)
@@ -66,7 +66,7 @@ def corbits(height=1.0, m=1.0, N=500, r=0.3, h=0.7, d=0.9, disp=0):
     bounces = np.zeros((N,N))
     angles = np.mgrid[0:m:N*1j, 0:m:N*1j].T
   
-    with open("cupgamefinal.c") as f:
+    with open("cupgame.c") as f:
         import hashlib
         clib = "\n".join(f.readlines())
         sha1 = hashlib.sha1(clib)
@@ -111,7 +111,7 @@ def trajectory(i,j, height=1.0, m=1.0, N=500, r=0.3, h=0.7, d=0.9, disp=0):
     v0 = np.array([0, 0, -3e-1]).astype('double')
     angles = np.mgrid[0:m:N*1j, 0:m:N*1j].T
 
-    with open("cupgamefinal.c") as f:
+    with open("cupgame.c") as f:
         import hashlib
         clib = "\n".join(f.readlines())
         sha1 = hashlib.sha1(clib)

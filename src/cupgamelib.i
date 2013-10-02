@@ -1,7 +1,7 @@
-%module smectics
+%module cupgamelib
 %{
   #define SWIG_FILE_WITH_INIT
-  #include "cupgame.h"
+  #include "cupgamelib.h"
 %}
 
 %include "numpy.i"
@@ -11,4 +11,4 @@
 
 %apply (int DIM1, double* INPLACE_ARRAY1) {(int len, double *onpy)};
 %apply (int DIM1, double* IN_ARRAY1) {(int len, double *inpy)};
-%include "smectics.h"
+%include "cupgamelib.h"
