@@ -37,7 +37,7 @@ double polyeval(double *poly, int deg, double x){
 void find_root_pair(double *poly, int deg, double *qpoly, 
         double *r1, double *r2){
     int i;
-    double c,d,g,h,u,v,det,err,abserr,vo,uo;
+    double c,d,g,h,u,v,det,err,vo,uo;
     double rpoly[DEGSIZE];
    
     u = poly[deg-1] / poly[deg];
@@ -120,7 +120,7 @@ double find_smallest_root(double *poly, int deg){
 
 void build_torus_poly(double *pos, double *vel, 
         double h, double r, double *cup, double *poly){
-    double r2,h2,x2,y2,z2,xvx,yvy,zvz,xyzv,trh,vx2,vy2,vz2,vx,vy,vz,x,y,z;
+    double r2,h2,x2,y2,z2,xvx,yvy,zvz,xyzv,vx2,vy2,vz2,vx,vy,vz,x,y,z;
     vx = vel[0]; vy = vel[1]; vz = vel[2];
     x = pos[0]-cup[0];  
     y = pos[1]-cup[1];  
@@ -131,7 +131,6 @@ void build_torus_poly(double *pos, double *vel,
     vy2 = vy*vy; yvy = y*vy;
     vz2 = vz*vz; zvz = z*vz;
     xyzv = (xvx+yvy+zvz);
-    trh = (r2+h2-z2);
     
     poly[8] = 1.0/16;
     poly[7] = -0.5*vz;
@@ -154,9 +153,9 @@ void build_torus_poly(double *pos, double *vel,
 
 void build_cylinder_poly(double *pos, double *vel, double r, 
         double cylx, double cyly, double *poly){
-    double vx,vy,vz,x,y,z;
-    vx = vel[0]; vy = vel[1]; vz = vel[2];
-    x = pos[0]-cylx; y = pos[1]-cyly; z = pos[2];
+    double vx,vy,x,y;
+    vx = vel[0];    vy = vel[1]; 
+    x = pos[0]-cylx; y = pos[1]-cyly; 
     poly[2] = vx*vx + vy*vy;
     poly[1] = 2*vx*x + 2*vy*y;
     poly[0] = x*x + y*y - r*r;
@@ -293,7 +292,6 @@ int collides_with_cup(double *pos, double *vel, double h, double r,
      *  2 : The ball passed through the center of the cup
      * It does not modify the values of pos, vel; modified tcoll
     */
-    double tzero; 
     double tpos[3], tvel[3], poly[DEGSIZE];
     memcpy(tpos, pos, sizeof(double)*3);
     memcpy(tvel, vel, sizeof(double)*3);
@@ -384,7 +382,7 @@ int collision_time(double *pos, double *vel, double h,
 
 double singleCollisions(double *pos, double *vel, double h, double r){
     double tcoll, cup[2];
-    int type = collision_time(pos, vel, h, r, &tcoll, cup);
+    collision_time(pos, vel, h, r, &tcoll, cup);
     position(pos, vel, tcoll, pos);
 
     //printf("%e\n", distance_to_torus(pos, h, r, cup));
@@ -393,9 +391,7 @@ double singleCollisions(double *pos, double *vel, double h, double r){
 
 int trackCollisions(double *pos, double *vel, double h, double r, 
         double damp, int maxbounces){
-    int i, result;
-    double hsq = h*h;
-    double rsq = r*r;
+    int result;
     double factor = damp;
     double tcoll;
 
@@ -435,9 +431,7 @@ int trackCollisions(double *pos, double *vel, double h, double r,
 
 int trackTrajectory(double *pos, double *vel, double h, double r, 
         double damp, int maxbounces, double *traj, int *clen, int mlen){
-    int i, result;
-    double hsq = h*h;
-    double rsq = r*r;
+    int result;
     double factor = damp;
     double tcoll;
 
@@ -446,7 +440,7 @@ int trackTrajectory(double *pos, double *vel, double h, double r,
     memcpy(tvel, vel, sizeof(double)*3);
 
     double t = 0.0;
-    double ttpos[3], ttvel[3];
+    double ttpos[3];
     memcpy(tpos, pos, sizeof(double)*3);
     memcpy(tvel, vel, sizeof(double)*3);
 

@@ -1,10 +1,8 @@
-import  os
 from setuptools import setup
 from distutils.extension import Extension
-from distutils.command.build_ext import build_ext
 
 ext = Extension('_cupgamelib', sources=['src/cupgamelib.i', 'src/cupgamelib.c'],
-                libraries=['m'], extra_compile_args=["-O2", "-funroll-loops", "-Wall"],
+                libraries=['m'], extra_compile_args=["-O2", "-funroll-loops", "-Wall", "-march=native"],
                 include_dirs=['src'])
 
 setup(
