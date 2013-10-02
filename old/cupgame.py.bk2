@@ -1,0 +1,110 @@
+import numpy as np
+import scipy as sp
+import pylab as pl
+from scipy.optimize import fmin
+import matplotlib as mpl
+import mpl_toolkits.mplot3d as mp3d
+import mpl_toolkits.mplot3d.axes3d as a3
+
+def position(x0, v0, t):
+    a = np.array([0,0,-1])
+    return x0+v0*t+0.5*a*t**2
+
+def velocity(v0, t):
+    a = np.array([0,0,-1])
+    return v0 + a*t
+
+def normpos(r):
+    rt, n = np.modf(r[:2])
+    r[:2] = rt[:2] 
+    return r
+
+def distance_to_torus2(t, x0, v0, hsq, rsq):
+    r = position(x0, v0, t)
+    r = normpos(r)
+    return abs((r.dot(r) + hsq - rsq)**2 - 4*hsq*(r[0]*r[0] + r[1]*r[1]))
+
+def distance_to_torus(r, hsq, rsq):
+    r = normpos(r)
+    return abs((r.dot(r) + hsq - rsq)**2 - 4*hsq*(r[0]*r[0] + r[1]*r[1]))
+
+def collision_time(x0, v0, hsq, rsq):
+    px0,py0,pz0 = x0
+    vx0,vy0,vz0 = v0
+    dt, t, dist = 5e-2, 0, 1e10
+    maxspeed = max([vz0, np.sqrt(vz0**2 + 2*pz0)])
+    z = pz0
+
+    while z > dt/maxspeed and dist > dt / maxspeed:
+        x = px0 + vx0*t
+        y = py0 + vy0*t
+        z = pz0 + vz0*t - 0.5*t**2
+        t = t + dt
+        dist = distance_to_torus(np.array([x,y,z]), hsq, rsq)
+
+    if dist < dt / maxspeed:
+        topt, fopt, iter, funcalls, warnflag = fmin(distance_to_torus2, x0=[t-dt],
+            args=(x0, v0, hsq, rsq), disp=0, maxiter=50, full_output=1, xtol=1e-5)
+    else:
+        topt = 0
+        fopt = 1
+    return topt,fopt 
+
+def collision_resultant(pos, vel, h):
+    x,y,z = pos
+    theta = np.arctan2(y,x)
+    yin = h*np.sin(theta)
+    xin = h*np.cos(theta)
+   
+    dr = pos-np.array([xin, yin, 0])
+    dr = 0.01*dr / np.sqrt(dr.dot(dr))
+    return (pos, pos+dr)
+
+def plotPoints(x,y,z):
+    fig = pl.figure()
+    axs = a3.Axes3D(fig)
+    axs.scatter(x,y,z)
+    pl.show()
+    
+def plotPorcupine(lines, x, y, z):
+    segs = mp3d.art3d.Line3DCollection(lines)
+    fig = pl.figure()
+    axs = a3.Axes3D(fig)
+    axs.scatter(x,y,z)
+    axs.add_collection3d(segs)
+    pl.show()
+
+def testscan():
+    m = 6.0
+    N = 40
+    r = 0.3
+    h = 1-r
+
+    hsq, rsq = h*h, r*r
+
+    x0 = np.array([0, 0, 1])
+    v0 = np.array([0, 0, 0])
+    out = np.zeros((N,N))
+    angles = np.mgrid[-m:m:N*1j, -m:m:N*1j].T
+   
+    segs, xs, ys, zs = [], [], [], []
+    for i in xrange(N):
+        for j in xrange(N):
+            xt = x0+np.array([angles[i,j,0], angles[i,j,1], 0])
+            tcoll, closest_approach = collision_time(x0=xt, v0=v0, hsq=hsq, rsq=rsq)
+
+            if abs(closest_approach) < 1e-4:
+                pos = position(xt, v0, tcoll)
+                vel = velocity(v0, tcoll)
+                segs.append(collision_resultant(pos, vel, h))
+                xs.append(pos[0])
+                ys.append(pos[1])
+                zs.append(pos[2])
+                out[i,j] = pos[2]
+   
+    #plotPorcupine(segs,xs,ys,zs)
+    plotPoints(xs,ys,zs)
+    #pl.figure()
+    #pl.imshow(out)
+    return out
+
