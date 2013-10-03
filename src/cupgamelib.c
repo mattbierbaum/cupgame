@@ -14,7 +14,7 @@
 // order polynomial which describes the intersection of a torus and parabola
 //============================================================================
 #define XTOL 1e-14
-#define NMAX 500
+#define NMAX 250
 
 #define DEG     8
 #define DEGSIZE 9
@@ -389,8 +389,8 @@ double singleCollisions(int NP, double *pos, int NV, double *vel, double h, doub
     return tcoll;
 }
 
-int trackCollisions(double *pos, double *vel, double h, double r, 
-        double damp, int maxbounces){
+int trackCollisions(int NP, double *pos, int NV, double *vel, 
+        double h, double r, double damp, int maxbounces){
     int result;
     double factor = damp;
     double tcoll;

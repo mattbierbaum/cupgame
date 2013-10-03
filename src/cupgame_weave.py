@@ -32,7 +32,7 @@ def plotPoints(x,y,z):
 
 def testscan(height=1.0, m=1.0, N=500, r=0.3, h=0.7, d=0.9, disp=0):
     x0 = np.array([0, 0, height]).astype('double')
-    v0 = np.array([0, 0, -3e-1]).astype('double')
+    v0 = np.array([0, 0, -1e-1]).astype('double')
     out = np.zeros((N,N))
     angles = np.mgrid[-m:m:N*1j, -m:m:N*1j].T
 
@@ -62,7 +62,7 @@ def testscan(height=1.0, m=1.0, N=500, r=0.3, h=0.7, d=0.9, disp=0):
 
 def corbits(height=1.0, m=1.0, N=500, r=0.3, h=0.7, d=0.9, disp=0):
     x0 = np.array([0, 0, height]).astype('double')
-    v0 = np.array([0, 0, -3e-1]).astype('double')
+    v0 = np.array([0, 0, -1e-1]).astype('double')
     bounces = np.zeros((N,N))
     angles = np.mgrid[0:m:N*1j, 0:m:N*1j].T
   
@@ -86,7 +86,7 @@ def corbits(height=1.0, m=1.0, N=500, r=0.3, h=0.7, d=0.9, disp=0):
             # set up return structures
             tbounces = np.array([0]).astype('int32')
 
-            weave.inline("tbounces[0] = trackCollisions(pos, vel, h, r, d, 10000); char id[] = \"%s\";" % uuid, 
+            weave.inline("tbounces[0] = trackCollisions(3, pos, 3, vel, h, r, d, 10000); char id[] = \"%s\";" % uuid, 
                     ["tbounces", "pos", "vel", "h", "d", "r"], support_code=clib, libraries=["m"])
             bounces[i,j] = tbounces[0]
   
@@ -108,7 +108,7 @@ def slowraise(prefix="rising"):
 
 def trajectory(i,j, height=1.0, m=1.0, N=500, r=0.3, h=0.7, d=0.9, disp=0):
     x0 = np.array([0, 0, height]).astype('double')
-    v0 = np.array([0, 0, -3e-1]).astype('double')
+    v0 = np.array([0, 0, -1e-1]).astype('double')
     angles = np.mgrid[0:m:N*1j, 0:m:N*1j].T
 
     with open("cupgamelib.c") as f:

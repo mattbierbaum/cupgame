@@ -36,7 +36,7 @@ def plotPoints(x,y,z):
 
 def testscan(height=1.0, m=1.0, N=500, r=0.3, h=0.7, d=0.9, disp=0):
     x0 = np.array([0, 0, height]).astype('double')
-    v0 = np.array([0, 0, -3e-1]).astype('double')
+    v0 = np.array([0, 0, -1e-1]).astype('double')
     out = np.zeros((N,N))
     angles = np.mgrid[-m:m:N*1j, -m:m:N*1j].T
 
@@ -55,20 +55,13 @@ def testscan(height=1.0, m=1.0, N=500, r=0.3, h=0.7, d=0.9, disp=0):
             zs.append(pos[2])
    
     plotPoints(xs,ys,zs)
-    return out
 
 def corbits(height=1.0, m=1.0, N=500, r=0.3, h=0.7, d=0.9, disp=0):
     x0 = np.array([0, 0, height]).astype('double')
-    v0 = np.array([0, 0, -3e-1]).astype('double')
+    v0 = np.array([0, 0, -1e-1]).astype('double')
     bounces = np.zeros((N,N))
     angles = np.mgrid[0:m:N*1j, 0:m:N*1j].T
   
-    with open("cupgamelib.c") as f:
-        import hashlib
-        clib = "\n".join(f.readlines())
-        sha1 = hashlib.sha1(clib)
-        uuid = sha1.hexdigest()
-
     for i in xrange(N):
         if disp == 1:
             print "Slice",i
@@ -80,12 +73,7 @@ def corbits(height=1.0, m=1.0, N=500, r=0.3, h=0.7, d=0.9, disp=0):
             pos = x0+offset
             vel = v0
 
-            # set up return structures
-            tbounces = np.array([0]).astype('int32')
-
-            weave.inline("tbounces[0] = trackCollisions(pos, vel, h, r, d, 10000); char id[] = \"%s\";" % uuid, 
-                    ["tbounces", "pos", "vel", "h", "d", "r"], support_code=clib, libraries=["m"])
-            bounces[i,j] = tbounces[0]
+            bounces[i,j] = cupgamelib.trackCollisions(pos, vel, h, r, d, 10000)
   
     return bounces
 
@@ -105,7 +93,7 @@ def slowraise(prefix="rising"):
 
 def trajectory(i,j, height=1.0, m=1.0, N=500, r=0.3, h=0.7, d=0.9, disp=0):
     x0 = np.array([0, 0, height]).astype('double')
-    v0 = np.array([0, 0, -3e-1]).astype('double')
+    v0 = np.array([0, 0, -1e-1]).astype('double')
     angles = np.mgrid[0:m:N*1j, 0:m:N*1j].T
 
     with open("cupgamelib.c") as f:
