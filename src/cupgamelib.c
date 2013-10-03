@@ -227,16 +227,17 @@ void cups_near(double *pos, double *cups, int *ncups){
 void cups_near_hex(double *pos, double *cups, int *ncups){
     *ncups = 0;
 
-    int i=0;
+    int i=0, j=0;
     double rt3 = sqrt(3.0);
-    double mx[] = {mymod(pos[0], 1), mymod(pos[1], rt3)};
-    double dx[] = {mx[0] - (int)(pos[0]/1)*1, mx[1] - (int)(pos[1]/rt3)*rt3};
-    double pts[][2] = {{0,0},{1,0},{-1,0},{0.5,rt3/2}};
+    int mp = (int)round(pos[1]/rt3);
+    int np = (int)round((pos[0]-mp)/2);
 
-    for (i=0; i<4; i++){
-        cups[2*(*ncups)+0] = dx[0] + pts[i][0];
-        cups[2*(*ncups)+1] = dx[1] + pts[i][1];
-        *ncups += 1;
+    for (i=-1; i<=1; i++){
+        for (j=-1; j<=1; j++){
+            cups[2*(*ncups)+0] = 2*(i+np) + (j+mp);
+            cups[2*(*ncups)+1] = rt3*(j+mp);
+            *ncups += 1;
+        }
     }
 }
 
@@ -323,7 +324,7 @@ int collision_near(double *pos, double *vel, double h, double r,
     event = RESULT_NOTHING;
     tevent = NAN;
 
-    cups_near(pos, cups, &ncups);
+    cups_near_hex(pos, cups, &ncups);
     for (i=0; i<ncups; i++){
         result = collides_with_cup(pos, vel, h, r, &cups[2*i], tcoll);
         if (result == RESULT_COLLISION || result == RESULT_INCUP){
