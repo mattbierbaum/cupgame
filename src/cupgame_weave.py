@@ -6,10 +6,6 @@ import mpl_toolkits.mplot3d as mp3d
 import mpl_toolkits.mplot3d.axes3d as a3
 from scipy import weave
 
-import sys, glob
-sys.path.append(glob.glob("../build/lib*")[0])
-import cupgamelib
-
 def plotSquareGrid(traj, h, r, fig=None):
     u,v = np.linspace(0, 2*np.pi, 30), np.linspace(0, 2*np.pi, 30)
     ux, vx = np.meshgrid(u,v)
@@ -40,6 +36,12 @@ def testscan(height=1.0, m=1.0, N=500, r=0.3, h=0.7, d=0.9, disp=0):
     out = np.zeros((N,N))
     angles = np.mgrid[-m:m:N*1j, -m:m:N*1j].T
 
+    with open("cupgamelib.c") as f:
+        import hashlib
+        clib = "\n".join(f.readlines())
+        sha1 = hashlib.sha1(clib)
+        uuid = sha1.hexdigest()
+   
     segs, xs, ys, zs = [], [], [], []
     for i in xrange(N):
         if disp:
@@ -49,7 +51,8 @@ def testscan(height=1.0, m=1.0, N=500, r=0.3, h=0.7, d=0.9, disp=0):
             pos = xt.copy(); vel = v0.copy()
 
             tz = np.array([0]).astype('double')
-            tz[0] = cupgamelib.singleCollisions(pos, vel, h, r)
+            weave.inline("tz[0] = singleCollisions(3, pos, 3, vel, h, r); char id[] = \"%s\";" % uuid, 
+                    ["tz", "pos", "vel", "h", "r"], support_code=clib, libraries=["m"])
             xs.append(pos[0])
             ys.append(pos[1])
             zs.append(pos[2])

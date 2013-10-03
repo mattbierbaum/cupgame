@@ -4,3 +4,4 @@ old/pdf/
 build/
 src/cupgamelib.py
 src/cupgamelib_wrap.c
+*.pyc

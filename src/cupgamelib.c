@@ -380,7 +380,7 @@ int collision_time(double *pos, double *vel, double h,
 }
 
 
-double singleCollisions(double *pos, double *vel, double h, double r){
+double singleCollisions(int NP, double *pos, int NV, double *vel, double h, double r){
     double tcoll, cup[2];
     collision_time(pos, vel, h, r, &tcoll, cup);
     position(pos, vel, tcoll, pos);
