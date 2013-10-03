@@ -14,18 +14,18 @@
 // order polynomial which describes the intersection of a torus and parabola
 //============================================================================
 #define XTOL 1e-14
-#define NMAX 250
+#define NMAX 1000
 
 #define DEG     8
 #define DEGSIZE 9
 #define MAXCUPS 50
-#define TSAMPLES 50
+#define TSAMPLES 25
 
 #define RESULT_NOTHING   0
 #define RESULT_COLLISION 1
 #define RESULT_INCUP     2
 
-#define EPS 1e-9
+#define EPS 1e-10
 
 double polyeval(double *poly, int deg, double x){
     int i;
@@ -251,9 +251,9 @@ void collision_normal(double *pos, double *vel, double h,
     double xin = h*cos(theta);
     double yin = h*sin(theta);
   
-    out[0] = pos[0]-xin;
-    out[1] = pos[1]-yin;
-    out[2] = pos[2];
+    out[0] = t[0]-xin;
+    out[1] = t[1]-yin;
+    out[2] = t[2];
 
     double len = sqrt(dot(out,out));
     out[0] /= len;
@@ -348,7 +348,7 @@ int collision_time(double *pos, double *vel, double h,
     double tevent = NAN;
 
     // find where the trajectory intersects the z=h plane
-    /*build_plane_poly(pos, vel, r, poly);
+    build_plane_poly(pos, vel, r, poly);
     find_all_roots(poly, 2, tcloseapproaches, &napproaches);
    
     for (i=0; i<napproaches; i++){
@@ -366,17 +366,22 @@ int collision_time(double *pos, double *vel, double h,
         }
     }
 
+    result = collision_near(pos, vel, h, r, tcoll, cup);
     if (result == RESULT_COLLISION || result == RESULT_INCUP){
         if ((isnan(tevent) || tevent > *tcoll) && *tcoll > 0){
             event = result;
             tevent = *tcoll;
         }
-    }*/
+    }
 
-    result = collision_near(pos, vel, h, r, tcoll, cup);
-    if (result == RESULT_NOTHING) *tcoll = NAN;
-    //*tcoll = tevent;
-    return result;
+    if (event == RESULT_NOTHING){
+        build_zero_poly(pos, vel, poly);
+        find_all_roots(poly, 2, tcloseapproaches, &napproaches);
+        tevent = tcloseapproaches[0] > 0 ? tcloseapproaches[0] : tcloseapproaches[1];
+    }
+
+    *tcoll = tevent;
+    return event;
 }
 
 
@@ -384,8 +389,6 @@ double singleCollisions(int NP, double *pos, int NV, double *vel, double h, doub
     double tcoll, cup[2];
     collision_time(pos, vel, h, r, &tcoll, cup);
     position(pos, vel, tcoll, pos);
-
-    //printf("%e\n", distance_to_torus(pos, h, r, cup));
     return tcoll;
 }
 
@@ -429,9 +432,9 @@ int trackCollisions(int NP, double *pos, int NV, double *vel,
     return tbounces;
 }
 
-int trackTrajectory(double *pos, double *vel, double h, double r, 
-        double damp, int maxbounces, double *traj, int *clen, int mlen){
-    int result;
+int trackTrajectory(int NP, double *pos, int NV, double *vel, double h, double r, 
+        double damp, int maxbounces, int NT, double *traj){
+    int result, clen=0;
     double factor = damp;
     double tcoll;
 
@@ -449,18 +452,17 @@ int trackTrajectory(double *pos, double *vel, double h, double r,
         // get the next collision
         result = collision_time(tpos, tvel, h, r, &tcoll, cup);
 
-        if (result == RESULT_NOTHING) 
-            break;
+        //printf("%i %e\n", result, tcoll);
 
-        for (t=0; t<tcoll; t+=(tcoll/TSAMPLES)){
+        for (t=0; t<tcoll+(tcoll/TSAMPLES); t+=(tcoll/TSAMPLES)){
             position(tpos, tvel, t, ttpos);
-            if (mlen >= 0 && *clen < mlen){
-                memcpy(traj+3*(*clen), ttpos, sizeof(double)*3);
-                clen[0] += 1;
+            if (NT >= 0 && clen < NT){
+                memcpy(traj+3*clen, ttpos, sizeof(double)*3);
+                clen += 1;
             }
         }
 
-        if (result == RESULT_INCUP)
+        if (result == RESULT_NOTHING || result == RESULT_INCUP)
             break;
 
         // figure out where it hit and what speed
@@ -469,12 +471,27 @@ int trackTrajectory(double *pos, double *vel, double h, double r,
 
         if (result == RESULT_COLLISION){
             reflect_velocity(tpos, tvel, h, factor, cup, tvel);
+
+            // if display normals
+            if (0){
+                double ax[3];
+                collision_normal(tpos, tvel, h, cup, ax);
+                if (NT >= 0 && clen < NT-3){
+                    memcpy(traj+3*clen, tpos, sizeof(double)*3);clen += 1;
+                    ttpos[0] = tpos[0]+ax[0];
+                    ttpos[1] = tpos[1]+ax[1];
+                    ttpos[2] = tpos[2]+ax[2];
+                    memcpy(traj+3*clen, ttpos, sizeof(double)*3);clen += 1;
+                    memcpy(traj+3*clen, tpos, sizeof(double)*3);clen += 1;
+                }
+            }
+
             tbounces++;
         }
 
         position(tpos, tvel, EPS, tpos); 
         velocity(tvel, EPS, tvel);
     }
-    return tbounces;
+    return clen;
 }
 

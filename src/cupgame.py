@@ -96,12 +96,6 @@ def trajectory(i,j, height=1.0, m=1.0, N=500, r=0.3, h=0.7, d=0.9, disp=0):
     v0 = np.array([0, 0, -1e-1]).astype('double')
     angles = np.mgrid[0:m:N*1j, 0:m:N*1j].T
 
-    with open("cupgamelib.c") as f:
-        import hashlib
-        clib = "\n".join(f.readlines())
-        sha1 = hashlib.sha1(clib)
-        uuid = sha1.hexdigest()
-
     offset = np.array([angles[i,j,0], angles[i,j,1], 0])
     pos = x0+offset
     vel = v0
@@ -112,8 +106,7 @@ def trajectory(i,j, height=1.0, m=1.0, N=500, r=0.3, h=0.7, d=0.9, disp=0):
     traj = np.zeros((3*mlen*(mlen>0)))
     clen = np.zeros((1,)).astype('int32')
 
-    weave.inline("tbounces[0] = trackTrajectory(pos, vel, h, r, d, 10000, traj, clen, mlen); char id[] = \"%s\";" % uuid, 
-            ["tbounces", "pos", "vel", "h", "d", "r", "traj", "clen", "mlen"], support_code=clib, libraries=["m"])
+    clen = cupgamelib.trackTrajectory(pos, vel, h, r, d, 10000, traj)
   
     traj = traj.reshape((mlen, 3))
     plotSquareGrid(traj ,h, r)
