@@ -1,9 +1,10 @@
 from setuptools import setup
 from distutils.extension import Extension
+import numpy as np
 
 ext = Extension('_cupgamelib', sources=['src/cupgamelib.i', 'src/cupgamelib.c'],
                 libraries=['m'], extra_compile_args=["-O2", "-funroll-loops", "-Wall", "-march=native"],
-                include_dirs=['src'])
+                include_dirs=['src', np.get_include()])
 
 setup(
     name='cupgamelib',
