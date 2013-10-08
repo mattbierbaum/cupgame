@@ -13,8 +13,8 @@
 // Root finder.  These functions create and solve for the roots of an 8th
 // order polynomial which describes the intersection of a torus and parabola
 //============================================================================
-#define XTOL 1e-15
-#define NMAX 1000
+#define XTOL 1e-14
+#define NMAX 512
 
 #define DEG     8
 #define DEGSIZE 9
@@ -408,32 +408,19 @@ int trackCollisions(int NP, double *pos, int NV, double *vel,
         // get the next collision
         result = collision_time(tpos, tvel, h, r, &tcoll, cup);
 
-        if (result == RESULT_NOTHING || result == RESULT_INCUP) 
-            break;
+        if (result == RESULT_NOTHING || result == RESULT_INCUP) break;
 
         // figure out where it hit and what speed
         position(tpos, tvel, tcoll, tpos);
         velocity(tvel, tcoll, tvel);
         vlen = dot(tvel, tvel);
-        //printf("%e\n", distance_to_torus(tpos, h, r, cup));
 
-        //if (tpos[2] < 0 || vlen < 1e-12)
-        //    return RESULT_INCUP;
+        if (tpos[2] < 0 || vlen < EPS) break;
 
-        if (result == RESULT_COLLISION){
-            //dist = distance_to_torus(tpos, h, r, cup);
-            //if (dist < 0){
-            //    position(tpos, tvel, -dist/vlen, tpos);
-            //    velocity(tvel, -dist/vlen, tvel);
-            //    printf("!");
-            //    fflush(stdout);
-            //}
-            reflect_velocity(tpos, tvel, h, factor, cup, tvel);
-            tbounces++;
-        }
+        reflect_velocity(tpos, tvel, h, factor, cup, tvel);
         position(tpos, tvel, EPS, tpos); 
         velocity(tvel, EPS, tvel);
-
+        tbounces++;
     }
     return tbounces;
 }
@@ -458,7 +445,6 @@ int trackTrajectory(int NP, double *pos, int NV, double *vel, double h, double r
         // get the next collision
         result = collision_time(tpos, tvel, h, r, &tcoll, cup);
 
-        //printf("%i %e\n", result, tcoll);
 
         for (t=0; t<tcoll+(tcoll/TSAMPLES); t+=(tcoll/TSAMPLES)){
             position(tpos, tvel, t, ttpos);
@@ -474,6 +460,10 @@ int trackTrajectory(int NP, double *pos, int NV, double *vel, double h, double r
         // figure out where it hit and what speed
         position(tpos, tvel, tcoll, tpos);
         velocity(tvel, tcoll, tvel);
+
+        double dist = distance_to_torus(tpos, h, r, cup);
+        double vlen = dot(tvel, tvel);
+        printf("%i %e %e %e\n", result, tcoll, dist, vlen);
 
         if (result == RESULT_COLLISION){
             reflect_velocity(tpos, tvel, h, factor, cup, tvel);
