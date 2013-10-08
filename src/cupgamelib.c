@@ -13,7 +13,7 @@
 // Root finder.  These functions create and solve for the roots of an 8th
 // order polynomial which describes the intersection of a torus and parabola
 //============================================================================
-#define XTOL 1e-14
+#define XTOL 1e-15
 #define NMAX 1000
 
 #define DEG     8
@@ -397,7 +397,7 @@ int trackCollisions(int NP, double *pos, int NV, double *vel,
         double h, double r, double damp, int maxbounces){
     int result;
     double factor = damp;
-    double tcoll;
+    double tcoll, vlen, dist;
 
     double tpos[3], tvel[3], cup[2]; 
     memcpy(tpos, pos, sizeof(double)*3);
@@ -414,13 +414,18 @@ int trackCollisions(int NP, double *pos, int NV, double *vel,
         // figure out where it hit and what speed
         position(tpos, tvel, tcoll, tpos);
         velocity(tvel, tcoll, tvel);
+        vlen = dot(tvel, tvel);
         //printf("%e\n", distance_to_torus(tpos, h, r, cup));
 
+        //if (tpos[2] < 0 || vlen < 1e-12)
+        //    return RESULT_INCUP;
+
         if (result == RESULT_COLLISION){
-            //if (distance_to_torus(tpos, h, r, cup) < 0) {
-            //    position(tpos, tvel, -EPS, tpos); 
-            //    velocity(tvel, -EPS, tvel);
-            //    printf("!"); 
+            //dist = distance_to_torus(tpos, h, r, cup);
+            //if (dist < 0){
+            //    position(tpos, tvel, -dist/vlen, tpos);
+            //    velocity(tvel, -dist/vlen, tvel);
+            //    printf("!");
             //    fflush(stdout);
             //}
             reflect_velocity(tpos, tvel, h, factor, cup, tvel);

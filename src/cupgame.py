@@ -1,10 +1,12 @@
+import matplotlib as mpl
+#mpl.use('Agg')  # use this for no display running
 import numpy as np
 import scipy as sp
 import pylab as pl
-import matplotlib as mpl
 import mpl_toolkits.mplot3d as mp3d
 import mpl_toolkits.mplot3d.axes3d as a3
 from scipy import weave
+from scipy import misc
 
 import sys, glob
 sys.path.append(glob.glob("../build/lib*")[0])
@@ -34,6 +36,11 @@ def plotPoints(x,y,z):
     axs.scatter(x,y,z)
     pl.show()
 
+def plotRawPicture(field, name, cmap=None):
+    mapper = cmap or mpl.cm.jet 
+    q = mapper(mpl.colors.Normalize()(np.log(field+1)))
+    misc.imsave(name, q)
+
 def testscan(height=1.0, m=1.0, N=500, r=0.3, h=0.7, d=0.9, disp=0):
     x0 = np.array([0, 0, height]).astype('double')
     v0 = np.array([0, 0, -1e-1]).astype('double')
@@ -59,13 +66,19 @@ def testscan(height=1.0, m=1.0, N=500, r=0.3, h=0.7, d=0.9, disp=0):
 def corbits(height=1.0, m=1.0, N=500, r=0.3, h=0.7, d=0.9, disp=0):
     x0 = np.array([0, 0, height]).astype('double')
     v0 = np.array([0, 0, -1e-1]).astype('double')
-    bounces = np.zeros((N,N))
+    bounces = np.zeros((N,N), dtype='int16')
+    #bounces = np.memmap("/media/scratch/cupgame/corbits_%i_h=%0.2f_mmap.npy" % (N, height),
+    #        dtype='int', mode='r', shape=(N,N))
     angles = np.mgrid[0:m:N*1j, 0:m:N*1j].T
+    #angles = np.mgrid[0.65:0.9:N*1j, 0.15:0.4:N*1j].T
   
     for i in xrange(N):
         if disp == 1:
-            print "Slice",i
+            print "Slice",i,"\r",
+            sys.stdout.flush()
+        #for j in xrange(int(i/np.sqrt(3))+2):
         for j in xrange(N):
+            #offset = np.array([i*m/N, j*m/N, 0]) #angles[i,j,0], angles[i,j,1], 0])
             offset = np.array([angles[i,j,0], angles[i,j,1], 0])
             if np.sqrt(offset[0]**2 + offset[1]**2)  - h > r:
                 continue
