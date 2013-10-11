@@ -69,8 +69,11 @@ def corbits(height=1.0, m=1.0, N=500, r=0.3, h=0.7, d=0.9, disp=0):
     bounces = np.zeros((N,N), dtype='int16')
     #bounces = np.memmap("/media/scratch/cupgame/corbits_%i_h=%0.2f_mmap.npy" % (N, height),
     #        dtype='int', mode='r', shape=(N,N))
-    #angles = np.mgrid[0:m:N*1j, 0:m:N*1j].T
-    angles = np.mgrid[0.65:0.9:N*1j, 0.15:0.4:N*1j].T
+    angles = np.mgrid[0:m:N*1j, 0:m:N*1j].T
+    #angles = np.mgrid[0.65:0.9:N*1j, 0.15:0.4:N*1j].T
+    #angles = np.mgrid[0.75:0.80:N*1j, 0.25:0.30:N*1j].T
+    #angles = np.mgrid[0.7622:0.0071+0.7622:N*1j, 0.2786:0.0071+0.2786:N*1j].T
+    angles = np.mgrid[0.7794:0.7794+0.00684:N*1j, 0.2607:0.2607+0.00684:N*1j].T
   
     for i in xrange(N):
         if disp == 1:

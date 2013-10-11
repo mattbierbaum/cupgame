@@ -3,7 +3,7 @@ from distutils.extension import Extension
 import numpy as np
 
 ext = Extension('_cupgamelib', sources=['src/cupgamelib.i', 'src/cupgamelib.c'],
-                libraries=['m'], extra_compile_args=["-O2", "-funroll-loops", "-Wall", "-march=native"],
+                libraries=['m'], extra_compile_args=["-O2", "-fopenmp", "-Wall", "-march=native", "-Ofast"],
                 include_dirs=['src', np.get_include()])
 
 setup(
