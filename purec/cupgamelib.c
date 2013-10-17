@@ -241,6 +241,23 @@ void cups_near_hex(double *pos, double *cups, int *ncups){
     }
 }
 
+void cups_near_6cup(double *pos, double *cups, int *ncups){
+    *ncups = 6;
+    double rt3 = sqrt(3.0);
+
+    cups[2*0+0] = 0.0;  cups[2*1+0] = 0.0;
+    cups[2*0+1] = 0.0;  cups[2*1+1] = 2.0*rt3;
+
+    cups[2*2+0] = -2.0; cups[2*3+0] = 2.0;
+    cups[2*2+1] = 0.0;  cups[2*3+1] = 0.0;
+
+    cups[2*4+0] = -1.0; cups[2*5+0] = 1.0;
+    cups[2*4+1] = rt3;  cups[2*5+1] = rt3;
+
+    for (int i=0; i<*ncups; i++)
+        cups[2*i+1] -= rt3/2;
+}
+
 void collision_normal(double *pos, double *vel, double h, 
         double *cup, double *out){
     double t[3];
@@ -324,7 +341,7 @@ int collision_near(double *pos, double *vel, double h, double r,
     event = RESULT_NOTHING;
     tevent = NAN;
 
-    cups_near_hex(pos, cups, &ncups);
+    cups_near_6cup(pos, cups, &ncups);
     for (i=0; i<ncups; i++){
         result = collides_with_cup(pos, vel, h, r, &cups[2*i], tcoll);
         if (result == RESULT_COLLISION || result == RESULT_INCUP){

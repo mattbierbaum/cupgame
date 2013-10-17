@@ -35,12 +35,12 @@ int main(int argc, char **argv){
 
         #pragma omp for nowait
         for (int j=0; j<N; j++){
-            //double xin[3] = {2.0*i/N-1.0, 2.0*j/N-1.0, height};
-            double xin[3] = {1.0*i/N, 1.0*j/N, height};
+            double xin[3] = {6.0*i/N-3.0, 6.0*j/N-2.0, height};
+            //double xin[3] = {1.0*i/N, 1.0*j/N, height};
             double vin[3] = {0.0, 0.0, -1e-1};
 
-            if (sqrt(xin[0]*xin[0] + xin[1]*xin[1]) - h > r)
-                continue;
+            //if (sqrt(xin[0]*xin[0] + xin[1]*xin[1]) - h > r)
+            //    continue;
 
             int b = trackCollisions(3, xin, 3, vin, h, r, restore, 1000);
             bounces[i+j*N] = b;
