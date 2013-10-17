@@ -13,7 +13,7 @@ int main(int argc, char **argv){
 
     int N;
     double h = 0.7;
-    double r = 0.3;
+    double r = 0.5;
     double height;
     double restore;
     char filename[1024];
