@@ -3,19 +3,17 @@
 #include <math.h>
 #include <string.h>
 #include <time.h>
-#include <unistd.h>
-#include <sys/types.h>
 #include "cupgamelib.h"
 
 int main(int argc, char **argv){
     if (argc != 5){
-        printf("Incorrect arguments supplied, must be <N> <height> <restoring> <filename>\n");
+        printf("<N> <height> <restoring> <filename>\n");
         return 1;
     }
 
     int N;
     double h = 0.7;
-    double r = 0.299;
+    double r = 0.3;
     double height;
     double restore;
     char filename[1024];
@@ -32,11 +30,12 @@ int main(int argc, char **argv){
     clock_gettime(CLOCK_REALTIME, &start);
 
     int steps = 0;
-    #pragma omp parallel shared(steps)
+    #pragma omp parallel
     for (int i=0; i<N; i++){
 
         #pragma omp for nowait
         for (int j=0; j<N; j++){
+            //double xin[3] = {2.0*i/N-1.0, 2.0*j/N-1.0, height};
             double xin[3] = {1.0*i/N, 1.0*j/N, height};
             double vin[3] = {0.0, 0.0, -1e-1};
 
