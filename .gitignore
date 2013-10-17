@@ -8,3 +8,4 @@ src/cupgamelib_wrap.c
 *.o
 main
 cupgame
+cupgame-nowait
