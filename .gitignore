@@ -5,3 +5,5 @@ build/
 src/cupgamelib.py
 src/cupgamelib_wrap.c
 *.pyc
+*.o
+main

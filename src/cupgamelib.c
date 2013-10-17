@@ -397,7 +397,7 @@ int trackCollisions(int NP, double *pos, int NV, double *vel,
         double h, double r, double damp, int maxbounces){
     int result;
     double factor = damp;
-    double tcoll, vlen, dist;
+    double tcoll, vlen;
 
     double tpos[3], tvel[3], cup[2]; 
     memcpy(tpos, pos, sizeof(double)*3);
@@ -427,9 +427,9 @@ int trackCollisions(int NP, double *pos, int NV, double *vel,
 
 void trackSlice(int NP, double *pos, int NV, double *vel,
         double h, double r, double damp, int maxbounces, int NS, int *bounces){
-    if (NP != NV || NP/3 != NO){
+    if (NP != NV || NP/3 != NS){
         printf("Incorrect dimensions for input arrays");
-        return 0;
+        return;
     }
 
     //#pragma omp parallel for
