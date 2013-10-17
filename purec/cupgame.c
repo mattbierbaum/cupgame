@@ -39,13 +39,14 @@ int main(int argc, char **argv){
     struct timespec start, end;
     clock_gettime(CLOCK_REALTIME, &start);
 
-    int subf = 8;
+    int subf = 32;
     for (int i=0; i<N/subf; i++){
         printf("slice %d \t rate: %0.2f\r", i*subf, rate);
         fflush(stdout);
 
         #pragma omp parallel for
         for (int k=0; k<subf; k++){
+            //#pragma omp for nowait
             for (int j=0; j<N; j++){
                 int ind = i*subf + k;
                 double xin[3] = {1.0*ind/N, 1.0*j/N, height};

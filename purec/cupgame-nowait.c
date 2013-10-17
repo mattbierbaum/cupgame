@@ -15,7 +15,7 @@ int main(int argc, char **argv){
 
     int N;
     double h = 0.7;
-    double r = 0.29;
+    double r = 0.299;
     double height;
     double restore;
     char filename[1024];
@@ -32,13 +32,13 @@ int main(int argc, char **argv){
     clock_gettime(CLOCK_REALTIME, &start);
 
     int steps = 0;
-    #pragma omp parallel
+    #pragma omp parallel shared(steps)
     for (int i=0; i<N; i++){
 
         #pragma omp for nowait
         for (int j=0; j<N; j++){
             double xin[3] = {1.0*i/N, 1.0*j/N, height};
-            double vin[3] = {0.0, 0.0, -1e0};
+            double vin[3] = {0.0, 0.0, -1e-1};
 
             if (sqrt(xin[0]*xin[0] + xin[1]*xin[1]) - h > r)
                 continue;
@@ -46,17 +46,18 @@ int main(int argc, char **argv){
             int b = trackCollisions(3, xin, 3, vin, h, r, restore, 1000);
             bounces[i+j*N] = b;
         }
-
         #pragma omp master
         {
-            printf("slice %d \t rate: %0.2f\r", i, rate);
+            steps += N;
+            printf("done: %0.4f \t rate: %0.2f\r", (float)steps/(N*N), rate);
             fflush(stdout);
 
-            steps += N;
             clock_gettime(CLOCK_REALTIME, &end);
             rate = steps/((end.tv_sec-start.tv_sec)+(end.tv_nsec-start.tv_nsec)/1e9);
         }
     }
+    printf("done: %0.4f \t rate: %0.2f\n", (float)steps/(N*N), rate);
+
     FILE *f = fopen(filename, "wb");
     fwrite(bounces, sizeof(int), N*N, f);
     fclose(f);

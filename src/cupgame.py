@@ -1,5 +1,5 @@
 import matplotlib as mpl
-#mpl.use('Agg')  # use this for no display running
+mpl.use('Agg')  # use this for no display running
 import numpy as np
 import scipy as sp
 import pylab as pl
@@ -9,8 +9,8 @@ from scipy import weave
 from scipy import misc
 
 import sys, glob
-sys.path.append(glob.glob("../build/lib*")[0])
-import cupgamelib
+#sys.path.append(glob.glob("../build/lib*")[0])
+#import cupgamelib
 
 def plotSquareGrid(traj, h, r, fig=None):
     u,v = np.linspace(0, 2*np.pi, 30), np.linspace(0, 2*np.pi, 30)
