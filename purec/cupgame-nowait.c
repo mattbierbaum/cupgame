@@ -36,7 +36,7 @@ int main(int argc, char **argv){
     for (int i=0; i<N; i++){
 
         userinformed = 0;
-        #pragma omp for nowait reduction(+:steps)
+        #pragma omp for nowait schedule(dynamic,N/16) reduction(+:steps)
         for (int j=0; j<N; j++){
             //double xin[3] = {1.0*i/N, 1.0*j/N, height};
             //if (sqrt(xin[0]*xin[0] + xin[1]*xin[1]) - h > r)
