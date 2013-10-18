@@ -14,6 +14,7 @@ int main(int argc, char **argv){
     int N;
     double h = 0.7;
     double r = 0.5;
+    //double h = 0.95; double r = 0.3; restore = 0.75; parameters for a real game
     double height;
     double restore;
     char filename[1024];
@@ -30,29 +31,32 @@ int main(int argc, char **argv){
     clock_gettime(CLOCK_REALTIME, &start);
 
     int steps = 0;
-    #pragma omp parallel
+    int userinformed = 0;
+    #pragma omp parallel shared(userinformed)
     for (int i=0; i<N; i++){
 
-        #pragma omp for nowait
+        userinformed = 0;
+        #pragma omp for nowait reduction(+:steps)
         for (int j=0; j<N; j++){
-            double xin[3] = {6.0*i/N-3.0, 6.0*j/N-2.0, height};
             //double xin[3] = {1.0*i/N, 1.0*j/N, height};
-            double vin[3] = {0.0, 0.0, -1e-1};
-
             //if (sqrt(xin[0]*xin[0] + xin[1]*xin[1]) - h > r)
             //    continue;
 
+            double xin[3] = {6.0*i/N-3.0, 6.0*j/N-2.0, height};
+            double vin[3] = {0.0, 0.0, -1e-1};
+
             int b = trackCollisions(3, xin, 3, vin, h, r, restore, 1000);
             bounces[i+j*N] = b;
+            steps++;
         }
-        #pragma omp master
-        {
-            steps += N;
-            printf("done: %0.4f \t rate: %0.2f\r", (float)steps/(N*N), rate);
-            fflush(stdout);
 
+        if (!userinformed)
+        {
+            userinformed = 1;
             clock_gettime(CLOCK_REALTIME, &end);
             rate = steps/((end.tv_sec-start.tv_sec)+(end.tv_nsec-start.tv_nsec)/1e9);
+            printf("done: %0.4f \t rate: %0.2f\r", (float)steps/(N*N), rate);
+            fflush(stdout);
         }
     }
     printf("done: %0.4f \t rate: %0.2f\n", (float)steps/(N*N), rate);

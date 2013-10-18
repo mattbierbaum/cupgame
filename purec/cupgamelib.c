@@ -425,7 +425,10 @@ int trackCollisions(int NP, double *pos, int NV, double *vel,
         // get the next collision
         result = collision_time(tpos, tvel, h, r, &tcoll, cup);
 
-        if (result == RESULT_NOTHING || result == RESULT_INCUP) break;
+        if (result == RESULT_NOTHING)
+            break; //return 0;
+        if (result == RESULT_INCUP)
+            break;
 
         // figure out where it hit and what speed
         position(tpos, tvel, tcoll, tpos);
