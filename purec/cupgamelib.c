@@ -341,7 +341,7 @@ int collision_near(double *pos, double *vel, double h, double r,
     event = RESULT_NOTHING;
     tevent = NAN;
 
-    cups_near_6cup(pos, cups, &ncups);
+    cups_near_hex(pos, cups, &ncups);
     for (i=0; i<ncups; i++){
         result = collides_with_cup(pos, vel, h, r, &cups[2*i], tcoll);
         if (result == RESULT_COLLISION || result == RESULT_INCUP){
