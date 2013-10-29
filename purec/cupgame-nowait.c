@@ -5,6 +5,11 @@
 #include <time.h>
 #include "cupgamelib.h"
 
+#define XSCAN_UNITQUAD {2.0*i/N-1, 2.0*j/N-1, height}
+#define XSCAN_UNITLINE {1.0*(i+j*N)/(N*N), 1.0*(i+j*N)/(N*N), height}
+#define XSCAN_HEIGHT {1.0*i/N, 1.0*i/N, height+ 0.5*(double)j/N}
+#define XSCAN_HEXAGON {6.0*i/N-3.0, 6.0*j/N-2.0, 0.75 + 5*(double)j/N}
+
 int main(int argc, char **argv){
     if (argc != 5){
         printf("<N> <height> <restoring> <filename>\n");
@@ -38,17 +43,17 @@ int main(int argc, char **argv){
         userinformed = 0;
         #pragma omp for nowait schedule(dynamic,N/16) reduction(+:steps)
         for (int j=0; j<N; j++){
-            double xin[3] = {2.0*i/N-1, 2.0*j/N-1, height};
+            steps++;
+
+            double xin[3] = XSCAN_UNITQUAD;
+            double vin[3] = {0.0, 0.0, -1e-1};
+
             if (sqrt(xin[0]*xin[0] + xin[1]*xin[1]) - h > r)
                 continue;
-            //double xin[3] = {1.0*i/N, 1.0*i/N, 1}; //0.35 + 0.5*(double)j/N};
             //restore = 0.5 + 0.5*(double)j/N;
-            //double xin[3] = {6.0*i/N-3.0, 6.0*i/N-2.0, 0.75 + 5*(double)j/N};
-            double vin[3] = {0.0, 0.0, -1e-1};
 
             int b = trackCollisions(3, xin, 3, vin, h, r, restore, 1000);
             bounces[i+j*N] = b;
-            steps++;
         }
 
         if (!userinformed)
