@@ -9,3 +9,4 @@ src/cupgamelib_wrap.c
 main
 cupgame
 cupgame-nowait
+cupgame-nowait-mapgen
