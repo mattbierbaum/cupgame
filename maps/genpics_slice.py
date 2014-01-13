@@ -15,7 +15,7 @@ from matplotlib import cm
 join = os.path.join
 outdir = '/var/www/runat.me/tmp/maps/'
 
-for zoom in xrange(4, 10):
+for zoom in xrange(1, 9):
     try:
         check_call(['mkdir', join(outdir, str(zoom))])
     except:

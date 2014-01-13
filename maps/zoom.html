@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Zoom plot</title>
+<style>
+    html, body{
+        height: 100%;
+        margin: 0px;
+        padding: 0px
+    }
+
+    #energy {
+        height: 292px;
+        width: 256px;
+        border-style: solid;
+        border-width: 1px;
+    }
+</style>
+
+<script>
+    var ctx;
+    var map = new Image();
+    var curr = 0;
+
+    var prefix = './zoom/zoom_';
+    var maxcount = 129;
+    var imsize = 128;
+
+    window.onload = init;
+    function pad(a,b){return(1e15+a+"").slice(-b)}
+
+    function init(){
+        var c = document.getElementById('map');
+        //c.setAttribute('style', 'height: 256px; widht: 256px; border-style: soldi; border-width: 0 0 1px;');
+        c.width = imsize;
+        c.height = imsize;
+        ctx = c.getContext('2d');
+
+        c.addEventListener('mousewheel', function(event){
+            if (event.wheelDelta < 0){
+                if (curr > 0) 
+                    curr -= 1;
+                else 
+                    curr = 0;
+            } else {
+                if (curr < maxcount) 
+                    curr += 1;
+                else 
+                    curr = maxcount;
+            }
+
+            loadimg(curr);
+            event.preventDefault();
+            return false;
+        }, false);
+
+        loadimg(curr);
+
+        var r = document.getElementById('slider');
+        r.addEventListener('change', function(){
+            curr = parseInt(this.value);
+            loadimg(curr);
+        });
+        r.max = maxcount;
+
+        document.getElementById('energy').setAttribute('style', 'width: '+imsize+'px; height: '+imsize+'px; border-style:solid; border-width: 1px;');
+        document.getElementById('slider').setAttribute('style', 'width: '+(imsize-7)+'px;');
+    }
+
+    function loadimg(n){
+        map.onload = function() {
+            ctx.clearRect(0,0,imsize, imsize);
+            ctx.drawImage(map, 0, 0);
+            document.getElementById('slider').value = curr;
+        };
+        map.src = prefix+pad(curr, 4)+'.png';
+    }
+</script>
+
+  </head>
+  <body>
+      <div id="energy">
+          <canvas id='map' height=256 width=256 border=0 style='border-style: solid; border-width: 0 0 1px;'></canvas>
+          <input type='range' id='slider' min='0' max='10' style="width: 250px;" />
+      </div>
+  </body>
+</html>
