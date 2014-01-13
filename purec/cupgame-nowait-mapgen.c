@@ -55,6 +55,9 @@ int main(int argc, char **argv){
 
             if (sqrt(xin[0]*xin[0] + xin[1]*xin[1]) - h > r)
                 continue;
+
+            if (atan2(xin[1], xin[0])*180./M_PI > 30)
+                continue;
             //restore = 0.5 + 0.5*(double)j/N;
 
             int b = trackCollisions(3, xin, 3, vin, h, r, restore, 1000);

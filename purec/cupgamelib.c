@@ -1,10 +1,8 @@
-#include <gsl/gsl_errno.h>
-#include <gsl/gsl_math.h>
-#include <gsl/gsl_min.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
 #include <string.h>
+#include "cupgamelib.h"
 
 // h is R, the radius of the hole
 // r is the radius of the ring
