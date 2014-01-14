@@ -23,8 +23,8 @@
     var curr = 0;
 
     var prefix = './zoom/zoom_';
-    var maxcount = 129;
-    var imsize = 128;
+    var maxcount = 150;
+    var imsize = 512;
 
     window.onload = init;
     function pad(a,b){return(1e15+a+"").slice(-b)}
@@ -73,7 +73,7 @@
             ctx.drawImage(map, 0, 0);
             document.getElementById('slider').value = curr;
         };
-        map.src = prefix+pad(curr, 4)+'.png';
+        map.src = prefix+pad(curr, 4)+'.png?v=0';
     }
 </script>
 
