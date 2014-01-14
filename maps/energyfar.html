@@ -22,9 +22,9 @@
     var map = new Image();
     var curr = 0;
 
-    var prefix = './energy/energy_';
-    var maxcount = 150;
-    var imsize = 512;
+    var prefix = './energyfar/energy_';
+    var maxcount = 190;
+    var imsize = 256;
 
     var loaded = 0;
     var pics = new Array(maxcount);
@@ -82,8 +82,8 @@
         } else {
             ctx.clearRect(0, 0, imsize, imsize);
             ctx.fillStyle = "black";
-            ctx.font = "bold 28px Helvetica";
-            ctx.fillText("Loading "+loaded+'/'+maxcount, 130, 100);
+            ctx.font = "bold 20px Helvetica";
+            ctx.fillText("Loading "+loaded+'/'+maxcount, 50, 100);
             setTimeout(loop_load, 100);
         }
     }

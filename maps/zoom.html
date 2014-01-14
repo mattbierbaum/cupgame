@@ -23,7 +23,7 @@
     var curr = 0;
 
     var prefix = './zoom/zoom_';
-    var maxcount = 149;
+    var maxcount = 160;
     var imsize = 512;
 
     var loaded = 0;
@@ -70,7 +70,7 @@
         });
         r.max = maxcount-1;
 
-        document.getElementById('energy').setAttribute('style', 'width: '+imsize+'px; height: '+imsize+'px; border-style:solid; border-width: 1px;');
+        document.getElementById('energy').setAttribute('style', 'width: '+imsize+'px; height: '+(imsize+33)+'px; border-style:solid; border-width: 1px;');
         document.getElementById('slider').setAttribute('style', 'width: '+(imsize-7)+'px;');
 
         setTimeout(loop_load, 100);
