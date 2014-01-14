@@ -23,13 +23,22 @@
     var curr = 0;
 
     var prefix = './zoom/zoom_';
-    var maxcount = 150;
+    var maxcount = 149;
     var imsize = 512;
+
+    var loaded = 0;
+    var pics = new Array(maxcount);
 
     window.onload = init;
     function pad(a,b){return(1e15+a+"").slice(-b)}
 
     function init(){
+        for (var i=0; i<maxcount; i++){
+            loaded[i] = false;
+            pics[i] = new Image();
+            load(i);
+        }
+
         var c = document.getElementById('map');
         //c.setAttribute('style', 'height: 256px; widht: 256px; border-style: soldi; border-width: 0 0 1px;');
         c.width = imsize;
@@ -43,38 +52,56 @@
                 else 
                     curr = 0;
             } else {
-                if (curr < maxcount) 
+                if (curr < maxcount-1) 
                     curr += 1;
                 else 
-                    curr = maxcount;
+                    curr = maxcount-1;
             }
 
-            loadimg(curr);
+            show(curr);
             event.preventDefault();
             return false;
         }, false);
 
-        loadimg(curr);
-
         var r = document.getElementById('slider');
         r.addEventListener('change', function(){
             curr = parseInt(this.value);
-            loadimg(curr);
+            show(curr);
         });
-        r.max = maxcount;
+        r.max = maxcount-1;
 
         document.getElementById('energy').setAttribute('style', 'width: '+imsize+'px; height: '+imsize+'px; border-style:solid; border-width: 1px;');
         document.getElementById('slider').setAttribute('style', 'width: '+(imsize-7)+'px;');
+
+        setTimeout(loop_load, 100);
     }
 
-    function loadimg(n){
-        map.onload = function() {
-            ctx.clearRect(0,0,imsize, imsize);
-            ctx.drawImage(map, 0, 0);
-            document.getElementById('slider').value = curr;
-        };
-        map.src = prefix+pad(curr, 4)+'.png?v=0';
+    function loop_load(){
+        if (loaded >= maxcount - 1){
+            show(curr);
+        } else {
+            ctx.clearRect(0, 0, imsize, imsize);
+            ctx.fillStyle = "black";
+            ctx.font = "bold 28px Helvetica";
+            ctx.fillText("Loading "+loaded+'/'+maxcount, 130, 100);
+            setTimeout(loop_load, 100);
+        }
     }
+
+    function load(n){
+        pics[n].onload = function(){
+            loaded += 1;
+        }
+        pics[n].src = prefix+pad(n, 4)+'.png?v=0';
+    }
+
+    function show(n){
+        curr = n;
+        ctx.clearRect(0, 0, imsize, imsize);
+        ctx.drawImage(pics[n], 0, 0);
+        document.getElementById('slider').value = n;
+    }
+
 </script>
 
   </head>
