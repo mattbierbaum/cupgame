@@ -29,42 +29,51 @@
     var loaded = 0;
     var pics = new Array(maxcount);
 
-    window.onload = init;
+    window.onload = displayload;
     function pad(a,b){return(1e15+a+"").slice(-b)}
 
-    function init(){
-        for (var i=0; i<maxcount; i++){
-            loaded[i] = false;
-            pics[i] = new Image();
-            load(i);
-        }
+    function displayload(){
+        document.getElementById('slider').hidden = true;
 
         var c = document.getElementById('map');
-        //c.setAttribute('style', 'height: 256px; widht: 256px; border-style: soldi; border-width: 0 0 1px;');
         c.width = imsize;
         c.height = imsize;
         ctx = c.getContext('2d');
 
         c.addEventListener('mousewheel', function(event){
-            if (event.wheelDelta < 0){
-                if (curr > 0) 
-                    curr -= 1;
-                else 
-                    curr = 0;
-            } else {
-                if (curr < maxcount-1) 
-                    curr += 1;
-                else 
-                    curr = maxcount-1;
-            }
+            if (loaded >= maxcount -2 ){
+                if (event.wheelDelta < 0){
+                    if (curr > 0) 
+                        curr -= 1;
+                    else 
+                        curr = 0;
+                } else {
+                    if (curr < maxcount-1) 
+                        curr += 1;
+                    else 
+                        curr = maxcount-1;
+                }
 
-            show(curr);
+                show(curr);
+            }
             event.preventDefault();
             return false;
         }, false);
 
+        c.addEventListener('click', function(event){
+            if (loaded == 0){
+                init();
+            }
+            event.preventDefault();
+            return false;
+        });
+
         var r = document.getElementById('slider');
         r.addEventListener('change', function(){
+            curr = parseInt(this.value);
+            show(curr);
+        });
+        r.addEventListener('input', function(){
             curr = parseInt(this.value);
             show(curr);
         });
@@ -73,6 +82,19 @@
         document.getElementById('energy').setAttribute('style', 'width: '+imsize+'px; height: '+(imsize+33)+'px; border-style:solid; border-width: 1px;');
         document.getElementById('slider').setAttribute('style', 'width: '+(imsize-7)+'px;');
 
+        ctx.clearRect(0, 0, imsize, imsize);
+        ctx.fillStyle = "black";
+        ctx.font = "bold 28px Helvetica";
+        ctx.fillText("Click to load", 150, 250);
+    }
+
+    function init(){
+        document.getElementById('slider').hidden = false;
+        for (var i=0; i<maxcount; i++){
+            loaded[i] = false;
+            pics[i] = new Image();
+            load(i);
+        }
         setTimeout(loop_load, 100);
     }
 
