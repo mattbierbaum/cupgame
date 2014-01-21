@@ -408,6 +408,10 @@ double singleCollisions(int NP, double *pos, int NV, double *vel, double h, doub
     return tcoll;
 }
 
+int cup_hash(double *cup){
+    return (int)(100*sqrt(cup[0]*cup[0]+cup[1]*cup[1])*atan2(cup[0],cup[1]));
+}
+
 int trackCollisions(int NP, double *pos, int NV, double *vel, 
         double h, double r, double damp, int maxbounces){
     int result;
@@ -424,9 +428,17 @@ int trackCollisions(int NP, double *pos, int NV, double *vel,
         result = collision_time(tpos, tvel, h, r, &tcoll, cup);
 
         if (result == RESULT_NOTHING)
-            break; //return 0;
-        if (result == RESULT_INCUP)
+#ifdef RECORD_MISSES
             break;
+#else
+            return 0;
+#endif
+        if (result == RESULT_INCUP)
+#ifdef RECORD_CUPINDEX
+            return cup_hash(cup);
+#else
+            break;
+#endif
 
         // figure out where it hit and what speed
         position(tpos, tvel, tcoll, tpos);
@@ -440,7 +452,12 @@ int trackCollisions(int NP, double *pos, int NV, double *vel,
         velocity(tvel, EPS, tvel);
         tbounces++;
     }
+
+#ifdef RECORD_CUPINDEX
+    return 0;
+#else
     return tbounces;
+#endif
 }
 
 void trackSlice(int NP, double *pos, int NV, double *vel,
