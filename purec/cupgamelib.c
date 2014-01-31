@@ -11,20 +11,6 @@
 // Root finder.  These functions create and solve for the roots of an 8th
 // order polynomial which describes the intersection of a torus and parabola
 //============================================================================
-#define XTOL 1e-14
-#define NMAX 512
-
-#define DEG     8
-#define DEGSIZE 9
-#define MAXCUPS 50
-#define TSAMPLES 25
-
-#define RESULT_NOTHING   0
-#define RESULT_COLLISION 1
-#define RESULT_INCUP     2
-
-#define EPS 1e-10
-
 double polyeval(double *poly, int deg, double x){
     int i;
     double out = 0.0;
@@ -240,6 +226,11 @@ void cups_near_hex(double *pos, double *cups, int *ncups){
 }
 
 void cups_near_6cup(double *pos, double *cups, int *ncups){
+    if (fabs(pos[0]) > 6.0 || fabs(pos[1]) > 6.0){
+        *ncups = 0;
+        return;
+    }
+
     *ncups = 6;
     double rt3 = sqrt(3.0);
 
@@ -256,8 +247,7 @@ void cups_near_6cup(double *pos, double *cups, int *ncups){
         cups[2*i+1] -= rt3/2;
 }
 
-void collision_normal(double *pos, double *vel, double h, 
-        double *cup, double *out){
+void collision_normal(double *pos, double h, double *cup, double *out){
     double t[3];
     t[0] = pos[0] - cup[0];
     t[1] = pos[1] - cup[1];
@@ -288,7 +278,7 @@ void rotate_about_axis(double *r, double *axis, double theta, double *out){
 void reflect_velocity(double *pos, double *vel, double h, 
         double f, double *cup, double *out){
     double ax[3]; 
-    collision_normal(pos, vel, h, cup, ax);
+    collision_normal(pos, h, cup, ax);
     rotate_about_axis(vel, ax, M_PI, out);
     out[0] *= -f; out[1] *= -f; out[2] *= -f;
 }
@@ -403,6 +393,9 @@ int collision_time(double *pos, double *vel, double h,
 
 double singleCollisions(int NP, double *pos, int NV, double *vel, double h, double r){
     double tcoll, cup[2];
+    if (NP != 3 || NV != 3)
+        return -1;
+
     collision_time(pos, vel, h, r, &tcoll, cup);
     position(pos, vel, tcoll, pos);
     return tcoll;
@@ -414,6 +407,9 @@ int cup_hash(double *cup){
 
 int trackCollisions(int NP, double *pos, int NV, double *vel, 
         double h, double r, double damp, int maxbounces){
+    if (NP != 3 || NV != 3)
+        return -1;
+
     int result;
     double factor = damp;
     double tcoll, vlen;
@@ -460,7 +456,7 @@ int trackCollisions(int NP, double *pos, int NV, double *vel,
 #endif
 }
 
-void trackSlice(int NP, double *pos, int NV, double *vel,
+/*void trackSlice(int NP, double *pos, int NV, double *vel,
         double h, double r, double damp, int maxbounces, int NS, int *bounces){
     if (NP != NV || NP/3 != NS){
         printf("Incorrect dimensions for input arrays");
@@ -469,10 +465,13 @@ void trackSlice(int NP, double *pos, int NV, double *vel,
 
     //#pragma omp parallel for
     //for (int i=0; i
-}
+}*/
 
 int trackTrajectory(int NP, double *pos, int NV, double *vel, double h, double r, 
         double damp, int maxbounces, int NT, double *traj){
+    if (NP != 3 || NV != 3)
+        return -1;
+
     int result, clen=0;
     double factor = damp;
     double tcoll;
@@ -491,10 +490,10 @@ int trackTrajectory(int NP, double *pos, int NV, double *vel, double h, double r
         // get the next collision
         result = collision_time(tpos, tvel, h, r, &tcoll, cup);
 
-
-        for (t=0; t<tcoll+(tcoll/TSAMPLES); t+=(tcoll/TSAMPLES)){
+        // FIXME - only draw 2d lines between collision times
+        for (t=0; t<tcoll; t+=(tcoll/TSAMPLES)){
             position(tpos, tvel, t, ttpos);
-            if (NT >= 0 && clen < NT){
+            if (NT >= 0 && clen < NT-3){
                 memcpy(traj+3*clen, ttpos, sizeof(double)*3);
                 clen += 1;
             }
@@ -507,6 +506,11 @@ int trackTrajectory(int NP, double *pos, int NV, double *vel, double h, double r
         position(tpos, tvel, tcoll, tpos);
         velocity(tvel, tcoll, tvel);
 
+        if (NT >= 0 && clen < NT-3){
+            memcpy(traj+3*clen, tpos, sizeof(double)*3);
+            clen += 1;
+        }
+
         double dist = distance_to_torus(tpos, h, r, cup);
         double vlen = dot(tvel, tvel);
         printf("%i %e %e %e\n", result, tcoll, dist, vlen);
@@ -517,8 +521,8 @@ int trackTrajectory(int NP, double *pos, int NV, double *vel, double h, double r
             // if display normals
             if (0){
                 double ax[3];
-                collision_normal(tpos, tvel, h, cup, ax);
-                if (NT >= 0 && clen < NT-3){
+                collision_normal(tpos, h, cup, ax);
+                if (NT >= 0 && clen < NT-9){
                     memcpy(traj+3*clen, tpos, sizeof(double)*3);clen += 1;
                     ttpos[0] = tpos[0]+ax[0];
                     ttpos[1] = tpos[1]+ax[1];
@@ -534,6 +538,6 @@ int trackTrajectory(int NP, double *pos, int NV, double *vel, double h, double r
         position(tpos, tvel, EPS, tpos); 
         velocity(tvel, EPS, tvel);
     }
-    return clen;
+    return 3*clen;
 }
 

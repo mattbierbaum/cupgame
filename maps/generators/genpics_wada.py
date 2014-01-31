@@ -18,10 +18,15 @@ outdir = '/var/www/runat.me/tmp/maps/wada'
 steps = 30
 size0 = 1.0
 
+# for thin, barely touching cups
 targetx = 0.7800808571829128
 targety = 0.2944330689467324
 
-for zoom in xrange(155):
+# for thick, realistic cups
+targetx = 0.7279635069051532
+targety = 0.403791382614881
+
+for zoom in xrange(110):
     tfile = '/media/scratch/cuptemp_wada'
     N = 1024
     
@@ -35,7 +40,12 @@ for zoom in xrange(155):
     
     check_call([str(a) for a in args])
     tt = np.fromfile(tfile, dtype='int32').reshape(N,N)
-    out = cm.flag(Normalize(vmin=-3000, vmax=3000)(tt))
-    out[tt == 0] = [1.0,1.0,1.0,1.0]
 
+    # for thin cups
+    #out = cm.flag(Normalize(vmin=-3000, vmax=3000)(tt))
+
+    # for thick cups
+    out = cm.flag(Normalize(vmin=-20, vmax=20)(tt))
+
+    out[tt == 0] = [1.0,1.0,1.0,1.0]
     imsave(join(outdir, 'wada_%04d.png' % zoom), out)

@@ -8,5 +8,6 @@ src/cupgamelib_wrap.c
 *.o
 main
 cupgame
+cupgame-track
 cupgame-nowait
 cupgame-nowait-mapgen
