@@ -493,7 +493,7 @@ int trackTrajectory(int NP, double *pos, int NV, double *vel, double h, double r
         // FIXME - only draw 2d lines between collision times
         for (t=0; t<tcoll; t+=(tcoll/TSAMPLES)){
             position(tpos, tvel, t, ttpos);
-            if (NT >= 0 && clen < NT-3){
+            if (NT >= 0 && clen < NT/3-3){
                 memcpy(traj+3*clen, ttpos, sizeof(double)*3);
                 clen += 1;
             }
@@ -506,14 +506,14 @@ int trackTrajectory(int NP, double *pos, int NV, double *vel, double h, double r
         position(tpos, tvel, tcoll, tpos);
         velocity(tvel, tcoll, tvel);
 
-        if (NT >= 0 && clen < NT-3){
+        if (NT >= 0 && clen < NT/3-3){
             memcpy(traj+3*clen, tpos, sizeof(double)*3);
             clen += 1;
         }
 
-        double dist = distance_to_torus(tpos, h, r, cup);
-        double vlen = dot(tvel, tvel);
-        printf("%i %e %e %e\n", result, tcoll, dist, vlen);
+        //double dist = distance_to_torus(tpos, h, r, cup);
+        //double vlen = dot(tvel, tvel);
+        //printf("%i %e %e %e\n", result, tcoll, dist, vlen);
 
         if (result == RESULT_COLLISION){
             reflect_velocity(tpos, tvel, h, factor, cup, tvel);
@@ -522,7 +522,7 @@ int trackTrajectory(int NP, double *pos, int NV, double *vel, double h, double r
             if (0){
                 double ax[3];
                 collision_normal(tpos, h, cup, ax);
-                if (NT >= 0 && clen < NT-9){
+                if (NT >= 0 && clen < NT/3-9){
                     memcpy(traj+3*clen, tpos, sizeof(double)*3);clen += 1;
                     ttpos[0] = tpos[0]+ax[0];
                     ttpos[1] = tpos[1]+ax[1];

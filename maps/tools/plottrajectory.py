@@ -1,6 +1,7 @@
 import numpy as np
 import scipy as sp
 import pylab as pl
+from subprocess import check_call
 
 cuplist = []
 
@@ -26,7 +27,7 @@ def cupnear(x, y):
             cups.append((2*(i+ty) + (j+tx), np.sqrt(3)*(j+tx)))
     return cups
 
-def plot_hex_grid(h, r, filename):
+def plot_hex_grid(h, r, filename, samecolor=False):
     tmp = np.fromfile(filename, dtype='float64')
     z = tmp.reshape(tmp.shape[0]/3, 3)
 
@@ -36,7 +37,21 @@ def plot_hex_grid(h, r, filename):
         pl.gca().add_artist(pl.Circle(circ, h+r, color='k', alpha=0.3))
         pl.gca().add_artist(pl.Circle(circ, h-r, color='w', alpha=1.0))
 
-    pl.plot(z[:,0], z[:,1], linewidth=1)
+    if samecolor:
+        pl.plot(z[:,0], z[:,1], linewidth=1, color='b', alpha=0.01)
+    else:
+        pl.plot(z[:,0], z[:,1], linewidth=1)
+
     pl.gca().set_aspect('equal', 'datalim') 
     pl.xticks([])
     pl.yticks([])
+
+def plot_many(h, r, sx, sy, sz):
+    fn = "/media/scratch/trajtemp"
+    pl.plot(sx, sy, 'o')
+    for x in np.linspace(sx, sx+0.001, 100):
+        print x
+        for y in np.linspace(sy, sy+0.001, 100):
+            args = ["./cupgame-track", 1.0, x, y, sz, fn]
+            check_call([str(a) for a in args])
+            plot_hex_grid(h, r, fn, samecolor=True)
